@@ -35,11 +35,106 @@ import fetch from "isomorphic-fetch"
 
 import DOM from 'react-dom'
 import React, {Component} from 'react'
+import Backbone from 'backbone'
+
 
 function app() {
     // start app
     // new Router()
-    DOM.render(<p>test 2</p>, document.querySelector('.container'))
+  	var AppView = React.createClass({
+  		componentWillMount: function() {
+  			var self = this
+    		this.props.jsonData.on('sync',function() {self.forceUpdate()})
+		},
+  		render: function() {
+  			var etsyData = this.props.jsonData
+  		
+  			return (
+  					<div className="mainContainer">
+  						<div className="header"> 	
+					 		<a href="index.html#home/"><img className="etsyLogo" src="http://diytrunkshow.com/wp/wp-content/uploads/2012/11/etsy_logo_lg_rgb2-676x386.png"/></a>
+						 	<ul className="headerList">
+						 		<li className="headerListItem">Shop</li>
+								<li className="headerListItem">Sell on Etsy</li>
+								<li className="headerListItem">Register</li>
+								<li id="signInButton" className="headerListItem">Sign In</li>	 
+							</ul>		
+						</div>
+							<div className="headerImageContainer">
+								<img className="headerImage" src="https://carpediem1115.files.wordpress.com/2013/12/rokit.jpg"/>
+								<h1 className="tagline">Shop directly from people around the world.</h1>
+								<div className="searchOptionsContainer">
+									<input className="search" placeholder="Search for items or shops"/>
+								</div>
+							</div>
+						<EtsyList etsyList={this.props.jsonData}/>
+  					</div>
+  				)
+  		}
+  	})
+
+  	var EtsyList = React.createClass({
+
+  		_getEtsyItems: function(etsyArray) {
+  				// console.log("EtsyList.render(): ", this.props.etsyList.models)
+  				var newArr = []
+  				var etsyArray = this.props.etsyList.models
+  				for (var i = 0; i < etsyArray.length - 76; i++) {
+  					var eachEtsyListing = etsyArray[i]
+  					var component = <EtsyListing key={eachEtsyListing.cid} etsyItem={eachEtsyListing} />
+  					newArr.push(component)
+  				}
+  				return newArr
+  		},
+  		render: function() {
+  			var etsyListArray = this.props.etsyList.models
+  			return (
+  					<div className="etsyListContainer">
+  						{this._getEtsyItems(etsyListArray)}
+  					</div>
+  				)
+  		}
+  	})
+	
+	var EtsyListing = React.createClass({
+		render: function() {
+			console.log("each item", this.props.etsyItem)
+			return (
+					<div className= "etsyItem">
+						<img className="itemImage" src= {this.props.etsyItem.get('Images')[0].url_75x75} />
+						<p className="title"> {this.props.etsyItem.get('title').substring(0,15)}</p>
+						<p className="price"> {this.props.etsyItem.get('price')}</p>
+
+					</div>
+				)
+		}
+
+	})
+
+
+	var HomeCollection = Backbone.Collection.extend({
+	// url: 'https://openapi.etsy.com/v2/listings/active.js?api_key=aavnvygu0h5r52qes74x9zvo&callback=?&includes=Images'
+	url: 'https://openapi.etsy.com/v2/listings/active.js?limit=250&offset=250&api_key=aavnvygu0h5r52qes74x9zvo&callback=?&includes=Images',
+	parse: function(rawData) {
+			return rawData.results
+		}
+	})
+	
+	var EtsyRouter = Backbone.Router.extend({
+		routes: {
+			"search/:searchQuery": "handleSearch",
+			"*default": "handleHomeView"
+		},
+		handleHomeView: function() {
+		var newHomeCollection = new HomeCollection()
+		newHomeCollection.fetch()
+		DOM.render(<AppView jsonData={newHomeCollection} />, document.querySelector('.container'))
+		},
+		initialize: function() {
+			Backbone.history.start()
+		}
+	})
+	var rtr = new EtsyRouter()
 }
 
 app()

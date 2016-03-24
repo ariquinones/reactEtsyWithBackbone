@@ -127,3 +127,91 @@ body {
 /**
  * App code
  */
+ * {
+    margin: 0; 
+    box-sizing: border-box;
+}
+.header {
+    width: 100%;
+    text-align: center;
+    padding: .5%;
+}
+.etsyLogo {
+    width: 5%;
+    height: 5%;
+    vertical-align: middle;
+}
+.headerList {
+    display: inline;
+}
+.headerListItem {
+    display: inline;
+    padding: 7%;
+    color: #6C809A;
+    font-size: .5em;
+}
+#signInButton {
+    text-decoration: underline;
+}
+.headerImageContainer {
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    position: relative;
+}
+.headerImage {
+    width: 100%;
+}
+.tagline {
+    position: absolute;
+    top: 20%;
+    left: 30%;
+    transform: translateX(-50%);
+    font-size: 3em;
+    color: white;
+    width: 50%;
+}
+.searchOptionsContainer {
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    text-align: right;
+}
+.search {
+    background: transparent;
+    font-size: 1em;
+    padding: 1%;
+    color: white;
+    margin: .5%;
+    border: none;
+    width: 25%;
+}
+.search:focus {
+    outline: none;
+}
+.etsyListContainer {
+    text-align: center;
+    margin: 2% auto;
+
+}
+ .etsyItem {
+    border: 1px solid black;
+    margin: 1%; 
+    display: inline-block;
+    width: 20%;
+    padding: 1%;
+    text-align: center;
+    min-height: 200px;
+    vertical-align: top;
+ }
+ .title {
+    font-size: .8em;
+    margin: 1% auto;
+    vertical-align: top;
+ }
+.price {
+    color: green;
+    font-size: .8em;
+    margin: 1% auto;
+}
