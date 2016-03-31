@@ -35,7 +35,8 @@ import fetch from "isomorphic-fetch"
 
 import DOM from 'react-dom'
 import React, {Component} from 'react'
-import Backbone from 'backbone'
+import Backbone from 'bbfire'
+import FavoritesView from './favoritesView'
 
 
 function app() {
@@ -46,9 +47,11 @@ function app() {
   			var self = this
     		this.props.jsonData.on('sync',function() {self.forceUpdate()})
 		},
+		_switchToFavorites: function() {
+			location.hash = "favorites"
+		},
   		render: function() {
   			var etsyData = this.props.jsonData
-  		
   			return (
   					<div className="mainContainer">
   						<div className="header"> 	
@@ -67,7 +70,8 @@ function app() {
 									<input className="search" placeholder="Search for items or shops"/>
 								</div>
 							</div>
-						<EtsyList etsyList={this.props.jsonData}/>
+						<button className="viewFavoritesButton" onClick={this._switchToFavorites}> View Favorites </button>
+						<EtsyList etsyList={this.props.jsonData} favoritesColl={this.props.favoritesColl}/>
   					</div>
   				)
   		}
@@ -81,10 +85,15 @@ function app() {
   				var etsyArray = this.props.etsyList.models
   				for (var i = 0; i < etsyArray.length - 76; i++) {
   					var eachEtsyListing = etsyArray[i]
-  					var component = <EtsyListing key={eachEtsyListing.cid} etsyItem={eachEtsyListing} />
+  					var component = <EtsyListing key={eachEtsyListing.cid} etsyItem={eachEtsyListing} favoritesColl={this.props.favoritesColl} _updater={this._updater}/>
   					newArr.push(component)
   				}
   				return newArr
+  		},
+  		_updater: function() {
+  			this.setState({
+  				favoritesColl: this.state.favoritesColl
+  			})
   		},
   		render: function() {
   			var etsyListArray = this.props.etsyList.models
@@ -93,25 +102,42 @@ function app() {
   						{this._getEtsyItems(etsyListArray)}
   					</div>
   				)
-  		}
+  		},
+  		getInitialState: function() {
+			return (
+					{favoritesColl: this.props.favoritesColl}
+				)
+		}
   	})
-	
 	var EtsyListing = React.createClass({
+		_addToFavorites: function() {
+			this.props.etsyItem.set({favorite: true})
+			this.props.favoritesColl.add(this.props.etsyItem.attributes)
+			this.props._updater() 
+		},
 		render: function() {
-			console.log("each item", this.props.etsyItem)
+			var stylesObj = {}
+			if (this.props.etsyItem.get('favorite') === true) {
+				stylesObj.backgroundColor = "red"
+				stylesObj.color = "white"
+			}
 			return (
 					<div className= "etsyItem">
 						<img className="itemImage" src= {this.props.etsyItem.get('Images')[0].url_75x75} />
 						<p className="title"> {this.props.etsyItem.get('title').substring(0,15)}</p>
 						<p className="price"> {this.props.etsyItem.get('price')}</p>
+						<button style={stylesObj} className="favoriteListing" onClick={this._addToFavorites}>Favorite</button>
 
 					</div>
 				)
 		}
 
 	})
-
-
+	var FavoriteModel = Backbone.Model.extend({
+		defaults: {
+			"favorite": false
+		}
+	})
 	var HomeCollection = Backbone.Collection.extend({
 	// url: 'https://openapi.etsy.com/v2/listings/active.js?api_key=aavnvygu0h5r52qes74x9zvo&callback=?&includes=Images'
 	url: 'https://openapi.etsy.com/v2/listings/active.js?limit=250&offset=250&api_key=aavnvygu0h5r52qes74x9zvo&callback=?&includes=Images',
@@ -119,18 +145,26 @@ function app() {
 			return rawData.results
 		}
 	})
-	
+	var FavoritesCollection = Backbone.Firebase.Collection.extend({
+		url: 'https://reactetsyremake.firebaseio.com/',
+		model: FavoriteModel
+	})
 	var EtsyRouter = Backbone.Router.extend({
 		routes: {
 			"search/:searchQuery": "handleSearch",
+			"favorites": "handleFavoritesView",
 			"*default": "handleHomeView"
-		},
-		handleHomeView: function() {
+	},
+	handleHomeView: function() {
 		var newHomeCollection = new HomeCollection()
 		newHomeCollection.fetch()
-		DOM.render(<AppView jsonData={newHomeCollection} />, document.querySelector('.container'))
+		DOM.render(<AppView jsonData={newHomeCollection} favoritesColl={new FavoritesCollection} />, document.querySelector('.container'))
 		},
-		initialize: function() {
+	handleFavoritesView: function() {
+			var newFavoritesCollection = new FavoritesCollection()
+			DOM.render(<FavoritesView favorites={newFavoritesCollection}/>, document.querySelector('.container'))
+		},
+	initialize: function() {
 			Backbone.history.start()
 		}
 	})

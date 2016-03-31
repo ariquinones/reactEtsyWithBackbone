@@ -148,7 +148,7 @@ body {
     display: inline;
     padding: 7%;
     color: #6C809A;
-    font-size: .5em;
+    font-size: .8em;
 }
 #signInButton {
     text-decoration: underline;
@@ -196,7 +196,7 @@ body {
 
 }
  .etsyItem {
-    border: 1px solid black;
+    border: 1px solid grey;
     margin: 1%; 
     display: inline-block;
     width: 20%;
@@ -204,6 +204,7 @@ body {
     text-align: center;
     min-height: 200px;
     vertical-align: top;
+    box-shadow: 1px 1px 5px grey;
  }
  .title {
     font-size: .8em;
@@ -215,3 +216,31 @@ body {
     font-size: .8em;
     margin: 1% auto;
 }
+.viewAllButton {
+    background: transparent;
+    color: skyblue; 
+    border: 1px solid skyblue;
+    border-radius: 5px;
+    margin-top: 2%; 
+    margin-left: 2%;
+}
+.viewFavoritesButton {
+    background: transparent;
+    color: skyblue; 
+    border: 1px solid skyblue;
+    border-radius: 5px;
+    margin-top: 2%; 
+    margin-left: 2%;
+}
+.favoriteListing {
+    color: red;
+    background: transparent;
+    border: 1px solid red;
+    border-radius: 5px;
+
+}
+
+
+
+
+
